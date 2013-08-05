@@ -31,9 +31,10 @@
 // USB data buffers
 static fcBuffers buffers;
 
+
 // Double-buffered DMA memory for raw bit planes of output
-static DMAMEM int ledBuffer[LEDS_PER_STRIP * 12];
-static OctoWS2811z leds(LEDS_PER_STRIP, ledBuffer, WS2811_800kHz);
+static DMAMEM int ledBuffer[LEDS_PER_STRIP * 6 * LED_STRIDE * (ENABLE_DOUBLE_BUFFERING ? 2 : 1)];
+static OctoWS2811z leds(LEDS_PER_STRIP * LED_STRIDE, ledBuffer, WS2811_800kHz);
 
 // Residuals for temporal dithering
 static int8_t residual[CHANNELS_TOTAL];
@@ -434,12 +435,14 @@ static void updateDrawBuffer(unsigned interpCoefficient)
         o0.p7b = p7 >> 22;
         o0.p7a = p7 >> 23;
 
-        *(out++) = o0.word;
-        *(out++) = o1.word;
-        *(out++) = o2.word;
-        *(out++) = o3.word;
-        *(out++) = o4.word;
-        *(out++) = o5.word;
+        for (int s = 0; s < LED_STRIDE; s++) {
+            *(out++) = o0.word;
+            *(out++) = o1.word;
+            *(out++) = o2.word;
+            *(out++) = o3.word;
+            *(out++) = o4.word;
+            *(out++) = o5.word;
+        }
     }
 }
 

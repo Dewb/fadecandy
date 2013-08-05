@@ -43,7 +43,12 @@ OctoWS2811z::OctoWS2811z(uint32_t numPerStrip, void *buffer, uint8_t config)
 {
     stripLen = numPerStrip;
     frameBuffer = buffer;
+#if ENABLE_DOUBLE_BUFFERING
     drawBuffer = (24 * numPerStrip) + (uint8_t*) buffer;
+#else
+    drawBuffer = frameBuffer; 
+#endif
+
     params = config;
 }
 
@@ -74,8 +79,10 @@ void OctoWS2811z::begin(void)
 
     // Clear both front and back buffers
     memset(frameBuffer, 0, bufsize);
+#if ENABLE_DOUBLE_BUFFERING
     memset(drawBuffer, 0, bufsize);
-    
+#endif
+
     // configure the 8 output pins
     GPIOD_PCOR = 0xFF;
     pinMode(2, OUTPUT); // strip #1
@@ -187,8 +194,11 @@ void OctoWS2811z::show(void)
     // wait for any prior DMA operation
     while (update_in_progress) ; 
 
+#if ENABLE_DOUBLE_BUFFERING
     // Swap buffer pointers without copying
     std::swap(frameBuffer, drawBuffer);
+#endif
+    
     DMA_TCD2_SADDR = frameBuffer;
 
     // wait for WS2811 reset

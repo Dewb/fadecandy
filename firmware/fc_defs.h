@@ -27,6 +27,9 @@
 
 #pragma once
 
+#define LED_STRIDE				2
+#define ENABLE_DOUBLE_BUFFERING 0
+
 #define LEDS_PER_STRIP          64
 #define LEDS_TOTAL              (LEDS_PER_STRIP * 8)
 #define CHANNELS_TOTAL          (LEDS_TOTAL * 3)
